@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
-import classes from './App.css';
-import Person from './Person/Person';
-import ErrorBoundary from './ErrorBoundary/ErrorBoundary';
+import classes from '../containers/App.css';
+import Person from '../components/Persons/Person/Person';
+import ErrorBoundary from '../components/ErrorBoundary/ErrorBoundary';
 
 
 class App extends Component {// in older script versions this used to be a class that used extend to inherit from Component class that was imported from react library
