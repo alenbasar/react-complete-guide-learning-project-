@@ -7,16 +7,27 @@ import Cockpit from "../components/Cockpit/Cockpit";
 class App extends Component {
   // in older script versions this used to be a class that used extend to inherit from Component class that was imported from react library
 
-  state = {
-    /** These are our states, here we have persons and showPersons states. */
-    persons: [
-      /**persons state is an array of objects with properties, in this case persons with name, age and id(every person has to have unique id) */
-      { id: "1", name: "Alen", age: 23 },
-      { id: "2", name: "Summer", age: 30 },
-      { id: "3", name: "Random", age: 60 },
-    ],
-    showPersons: false /** This is our showPersons state that is boolean(false by default) because we use it conditionally(when we press the button it becomes true) */,
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      persons: [
+        /**persons state is an array of objects with properties, in this case persons with name, age and id(every person has to have unique id) */
+        { id: "1", name: "Alen", age: 23 },
+        { id: "2", name: "Summer", age: 30 },
+        { id: "3", name: "Random", age: 60 },
+      ],
+      showPersons: false,
+    };
+  }
+
+  static getDerivedStateFromProps(props, state) {
+    console.log("[App.js] getDerivedStateFromProps", props);
+    return state;
+  }
+
+  componentDidMount() {
+    console.log("[App.js] componentDidMount");
+  }
 
   changeNameHandler = (event, i) => {
     /** This is an event handler that receives event and id props */
@@ -26,18 +37,13 @@ class App extends Component {
         prs.id === i
       ); /** findIndex() method executes the function which receives prs as prop, for each element in the array, returning the value that we want to find.*/
     }); /** We basically ask if prs.id is strictly equal(===) to id in persons state, if it is the id is returned and copied to personsIndex which becomes a copy of each persons id.*/
-
     const personID = {
       /** Here we make a copy of persons state by using spread operator(...this.state.persons[personIndex]) */
       ...this.state.persons[personIndex],
     };
-
     personID.name = event.target.value;
-
     const personsCopy = [...this.state.persons];
-
     personsCopy[personIndex] = personID;
-
     this.setState({
       persons: personsCopy,
     });
@@ -55,6 +61,7 @@ class App extends Component {
   };
 
   render() {
+    console.log("[App.js] render");
     let persons = null;
 
     if (this.state.showPersons) {
@@ -70,6 +77,7 @@ class App extends Component {
     return (
       <div className={classes.App}>
         <Cockpit
+          title={this.props.appTitle}
           showPersons={this.state.showPersons}
           persons={this.state.persons}
           clicked={this.togglePersonHandler}
