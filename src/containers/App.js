@@ -2,11 +2,11 @@ import React, { Component } from "react";
 import classes from "../containers/App.css";
 import Persons from "../components/Persons/Persons";
 import Cockpit from "../components/Cockpit/Cockpit";
-//import ErrorBoundary from '../components/ErrorBoundary/ErrorBoundary';
+import withClass from "../hoc/withClass";
+import Aux from "../hoc/Aux";
+import AuthContext from "../context/auth-context";
 
 class App extends Component {
-  // in older script versions this used to be a class that used extend to inherit from Component class that was imported from react library
-
   constructor(props) {
     super(props);
     this.state = {
@@ -17,6 +17,8 @@ class App extends Component {
         { id: "3", name: "Random", age: 60 },
       ],
       showPersons: false,
+      showCockpit: true,
+      authenticated: false,
     };
   }
 
@@ -29,16 +31,20 @@ class App extends Component {
     console.log("[App.js] componentDidMount");
   }
 
+  shouldComponentUpdate(nextProps, nextState) {
+    console.log("[App.js] shouldComponentUpdate");
+    return true;
+  }
+
+  componentDidUpdate() {
+    console.log("[App.js] componentDidUpdate");
+  }
+
   changeNameHandler = (event, i) => {
-    /** This is an event handler that receives event and id props */
     const personIndex = this.state.persons.findIndex((prs) => {
-      /** Here we declare personsIndex to which we assign the ids of each element in a persons array, using findIndex()*/
-      return (
-        prs.id === i
-      ); /** findIndex() method executes the function which receives prs as prop, for each element in the array, returning the value that we want to find.*/
-    }); /** We basically ask if prs.id is strictly equal(===) to id in persons state, if it is the id is returned and copied to personsIndex which becomes a copy of each persons id.*/
+      return prs.id === i;
+    });
     const personID = {
-      /** Here we make a copy of persons state by using spread operator(...this.state.persons[personIndex]) */
       ...this.state.persons[personIndex],
     };
     personID.name = event.target.value;
@@ -60,6 +66,10 @@ class App extends Component {
     this.setState({ persons: dPersons });
   };
 
+  signInHandler = () => {
+    this.setState({ authenticated: true });
+  };
+
   render() {
     console.log("[App.js] render");
     let persons = null;
@@ -70,25 +80,39 @@ class App extends Component {
           persons={this.state.persons}
           changed={this.changeNameHandler}
           click={this.deletePersonHandler}
+          //isAuthenticated={this.state.authenticated}
         />
       );
     }
 
     return (
-      <div className={classes.App}>
-        <Cockpit
-          title={this.props.appTitle}
-          showPersons={this.state.showPersons}
-          persons={this.state.persons}
-          clicked={this.togglePersonHandler}
-        />
-        {persons}
-      </div> // This might look like HTML and also can be referred to as HTML but it is not, it's called JSX which is Reacts version of HTML that gets compiled into JS.
+      <Aux>
+        <button
+          onClick={() => {
+            this.setState({ showCockpit: false });
+          }}
+        >
+          Remove Cockpit
+        </button>
+        <AuthContext.Provider
+          value={{
+            authenticated: this.state.authenticated,
+            SignIn: this.signInHandler,
+          }}
+        >
+          {this.state.showCockpit ? (
+            <Cockpit
+              title={this.props.appTitle}
+              showPersons={this.state.showPersons}
+              personsLength={this.state.persons.length}
+              clicked={this.togglePersonHandler}
+            />
+          ) : null}
+          {persons}
+        </AuthContext.Provider>
+      </Aux>
     );
-    /*return React.createElement('div', {className:'App'}, React.createElement('h1', null, 'I\'m a React App')); this is the equivalent to the code above,
-                                                                                                               we can see how much more efficient and cleaner
-                                                                                                               the code above looks, thats why we use React js.*/
   }
 }
 
-export default App;
+export default withClass(App, classes.App);
